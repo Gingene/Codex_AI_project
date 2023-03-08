@@ -10,8 +10,10 @@ function loader(element) {
   element.textContent = "";
 
   loadInterval = setInterval(() => {
+    // Update the text content of the loading indicator
     element.textContent += ".";
 
+    // If the loading indicator has reached three dots, reset it
     if (element.textContent === "....") {
       element.textContent = "";
     }
@@ -31,6 +33,9 @@ function typeText(element, text) {
   }, 20);
 }
 
+// generate unique ID for each message div of bot
+// necessary for typing text effect for that specific reply
+// without unique ID, typing text will work on every element
 function generateUniqueId() {
   const timestamp = Date.now();
   const randomNumber = Math.random();
@@ -41,17 +46,17 @@ function generateUniqueId() {
 
 function chatStripe(isAi, value, uniqueId) {
   return `
-      <div class="wrapper ${isAi && "ai"}">
-        <div class="chat">
-          <div class="profile">
-            <img
-              src="${isAi ? bot : user}"
-              alt="${isAi ? "bot" : "user"}"
-            />
-          </div>
-          <div class="message" id=${uniqueId}>${value}</div>
+        <div class="wrapper ${isAi && "ai"}">
+            <div class="chat">
+                <div class="profile">
+                    <img 
+                      src=${isAi ? bot : user} 
+                      alt="${isAi ? "bot" : "user"}" 
+                    />
+                </div>
+                <div class="message" id=${uniqueId}>${value}</div>
+            </div>
         </div>
-      </div>
     `;
 }
 
@@ -60,22 +65,24 @@ const handleSubmit = async (e) => {
 
   const data = new FormData(form);
 
-  // user's chatstript
+  // user's chatstripe
   chatContainer.innerHTML += chatStripe(false, data.get("prompt"));
 
+  // to clear the textarea input
   form.reset();
 
   // bot's chatstripe
   const uniqueId = generateUniqueId();
-  chatContainer.innerHTML += chatStripe(true, "", uniqueId);
+  chatContainer.innerHTML += chatStripe(true, " ", uniqueId);
 
+  // to focus scroll to the bottom
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
+  // specific message div
   const messageDiv = document.getElementById(uniqueId);
 
+  // messageDiv.innerHTML = "..."
   loader(messageDiv);
-
-  // detch data from server -> response
 
   const response = await fetch("https://codex-ai-63gf.onrender.com", {
     method: "POST",
@@ -86,22 +93,23 @@ const handleSubmit = async (e) => {
       prompt: data.get("prompt"),
     }),
   });
+  // console.log("回應");
+  // console.log(response);
 
   clearInterval(loadInterval);
-  messageDiv.innerHTML = "";
+  messageDiv.innerHTML = " ";
 
   if (response.ok) {
     const data = await response.json();
-    const parsedData = data.bot.trim();
-
-    // console.log({ parsedData });
+    console.log("資料");
+    console.log(data);
+    const parsedData = data.bot.content.trim(); // trims any trailing spaces/'\n'
 
     typeText(messageDiv, parsedData);
   } else {
     const err = await response.text();
 
-    messageDiv.innerHTML = "Somthing went wrong";
-
+    messageDiv.innerHTML = "Something went wrong";
     alert(err);
   }
 };
