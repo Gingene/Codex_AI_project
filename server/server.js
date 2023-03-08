@@ -43,7 +43,6 @@ app.post("/", async (req, res) => {
     res.status(200).send({
       bot: completion.data.choices[0].message,
     });
-    console.log(completion.data.choices[0].message);
   } catch (error) {
     console.log(error);
     res.status(500).send(error || "Something went wrong");

@@ -93,16 +93,14 @@ const handleSubmit = async (e) => {
       prompt: data.get("prompt"),
     }),
   });
-  // console.log("回應");
-  // console.log(response);
 
   clearInterval(loadInterval);
   messageDiv.innerHTML = " ";
 
   if (response.ok) {
     const data = await response.json();
-    console.log("資料");
-    console.log(data);
+    // console.log("資料");
+    // console.log(data);
     const parsedData = data.bot.content.trim(); // trims any trailing spaces/'\n'
 
     typeText(messageDiv, parsedData);
