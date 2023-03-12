@@ -6,6 +6,8 @@ const chatContainer = document.querySelector("#chat_container");
 
 let loadInterval;
 
+// test4stackblitz
+
 function loader(element) {
   element.textContent = "";
 
