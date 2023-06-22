@@ -21,6 +21,7 @@ app.get("/", async (req, res) => {
   });
 });
 
+let myMessages = [];
 app.post("/", async (req, res) => {
   try {
     const prompt = req.body.prompt;
@@ -35,16 +36,21 @@ app.post("/", async (req, res) => {
     //   presence_penalty: 0,
     // });
 
+    myMessages.push({ role: "user", content: `${prompt}` });
     const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: `${prompt}` }],
+      model: "gpt-3.5-turbo-16k",
+      messages: myMessages,
     });
-
+    console.log(myMessages);
+    console.log(completion.data.usage);
+    let answer = completion.data.choices[0].message;
     res.status(200).send({
-      bot: completion.data.choices[0].message,
+      bot: answer,
     });
+    myMessages.push({ role: "assistant", content: answer.content });
+    console.log(myMessages);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).send(error || "Something went wrong");
   }
 });
